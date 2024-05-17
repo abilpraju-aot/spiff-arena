@@ -43,7 +43,7 @@ export default function BaseRoutes({ extensionUxElements }: OwnProps) {
     return (
       <div className="fixed-width-container">
         <ErrorDisplay />
-        <LoginHandler />
+        {/* <LoginHandler /> */}
         <Routes>
           {extensionRoutes}
           <Route path="/" element={<RootRoute />} />

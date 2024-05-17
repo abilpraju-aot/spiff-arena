@@ -17,7 +17,7 @@ import HttpService from './services/HttpService';
 import { ErrorBoundaryFallback } from './ErrorBoundaryFallack';
 import BaseRoutes from './routes/BaseRoutes';
 import BackendIsDown from './routes/BackendIsDown';
-import Login from './routes/Login';
+//import Login from './routes/Login';
 import NavigationBar from './components/NavigationBar';
 import useAPIError from './hooks/UseApiError';
 
@@ -123,7 +123,7 @@ export default function ContainerForExtensions() {
         />
         <Route path="editor/*" element={<EditorRoutes />} />
         <Route path="extensions/:page_identifier" element={<Extension />} />
-        <Route path="login" element={<Login />} />
+        {/* <Route path="login" element={<Login />} /> */}
       </Routes>
     );
   };

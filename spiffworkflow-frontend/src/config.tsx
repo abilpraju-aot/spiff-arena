@@ -25,6 +25,10 @@ if ('spiffworkflowFrontendJsenv' in window) {
   }
   if ('BACKEND_BASE_URL' in window.spiffworkflowFrontendJsenv) {
     backendBaseUrl = window.spiffworkflowFrontendJsenv.BACKEND_BASE_URL;
+    console.log("backend",backendBaseUrl);
+  }
+  else{
+    backendBaseUrl='http://localhost:7000'
   }
   if ('DOCUMENTATION_URL' in window.spiffworkflowFrontendJsenv) {
     documentationUrl = window.spiffworkflowFrontendJsenv.DOCUMENTATION_URL;

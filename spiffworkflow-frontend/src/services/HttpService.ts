@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { BACKEND_BASE_URL } from '../config';
 import { objectIsEmpty } from '../helpers';
-import UserService from './UserService';
 
 const HttpMethods = {
   GET: 'GET',
@@ -10,14 +9,10 @@ const HttpMethods = {
 };
 
 export const getBasicHeaders = (): Record<string, string> => {
-  if (UserService.isLoggedIn()) {
-    return {
-      Authorization: `Bearer ${UserService.getAccessToken()}`,
-      'SpiffWorkflow-Authentication-Identifier':
-        UserService.getAuthenticationIdentifier() || 'default',
-    };
-  }
-  return {};
+  return {
+    Authorization: localStorage.getItem("AUTH_TOKEN") || "",
+    'SpiffWorkflow-Authentication-Identifier': 'default',
+  };
 };
 
 type backendCallProps = {
@@ -29,13 +24,6 @@ type backendCallProps = {
   extraHeaders?: object;
   postBody?: any;
 };
-
-export class UnauthenticatedError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'UnauthenticatedError';
-  }
-}
 
 export class UnexpectedResponseError extends Error {
   constructor(message: string) {
@@ -121,18 +109,15 @@ backendCallProps) => {
     credentials: 'include',
   });
 
-  const updatedPath = path.replace(/^\/v1\.0/, '');
+  //const updatedPath = path.replace(/^\/v1\.0/, '');
 
-  fetch(`${BACKEND_BASE_URL}${updatedPath}`, httpArgs)
+  fetch(`http://localhost:7000/v1.0/permissions-check`, httpArgs)
     .then((response) => {
-      if (response.status === 401) {
-        throw new UnauthenticatedError('You must be authenticated to do this.');
-      }
-      return response.text().then((result: any) => {
+      return response.text().then((result) => {
         return { response, text: result };
       });
     })
-    .then((result: any) => {
+    .then((result) => {
       let jsonResult = null;
       try {
         jsonResult = JSON.parse(result.text);
@@ -151,11 +136,7 @@ backendCallProps) => {
       if (result.response.status === 403) {
         if (onUnauthorized) {
           onUnauthorized(jsonResult);
-        } else if (UserService.isPublicUser()) {
-          window.location.href = '/public/sign-out';
         } else {
-          // Hopefully we can make this service a hook and use the error message context directly
-          // eslint-disable-next-line no-alert
           alert(jsonResult.message);
         }
       } else if (!result.response.ok) {
@@ -167,7 +148,6 @@ backendCallProps) => {
             message = jsonResult.message;
           }
           console.error(message);
-          // eslint-disable-next-line no-alert
           alert(message);
         }
       } else {
@@ -175,17 +155,10 @@ backendCallProps) => {
       }
     })
     .catch((error) => {
-      if (error.name !== 'UnauthenticatedError') {
-        if (failureCallback) {
-          failureCallback(error);
-        } else {
-          console.error(error.message);
-        }
-      } else if (
-        !UserService.isLoggedIn() &&
-        window.location.pathname !== '/login'
-      ) {
-        window.location.href = `/login?original_url=${UserService.getCurrentLocation()}`;
+      if (failureCallback) {
+        failureCallback(error);
+      } else {
+        console.error(error.message);
       }
     });
 };
